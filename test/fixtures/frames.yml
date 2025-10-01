@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  width: 9.99
+  height: 9.99
+  center_x: 9.99
+  center_y: 9.99
+
+two:
+  width: 9.99
+  height: 9.99
+  center_x: 9.99
+  center_y: 9.99
