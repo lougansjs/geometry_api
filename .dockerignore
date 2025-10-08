@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+RATE_LIMITING.md
+
+# Logs
+log/*
+!log/.keep
+
+# Runtime data
+tmp/*
+!tmp/.keep
+!tmp/pids
+!tmp/pids/.keep
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+# spec/
+test/
+
+# Cache
+.cache/
