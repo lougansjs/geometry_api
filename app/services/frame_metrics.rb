@@ -17,14 +17,14 @@ class FrameMetrics
   def base_metrics
     {
       frame: frame,
-      total_circles: circles.count,
+      total_circles: circles.count
     }
   end
 
   def circles_metrics
     {
       highest_circles: highest_circles,
-      lowest_circles: lowest_circles, 
+      lowest_circles: lowest_circles,
       leftmost_circles: leftmost_circles,
       rightmost_circles: rightmost_circles
     }

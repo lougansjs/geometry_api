@@ -86,12 +86,11 @@ RSpec.configure do |config|
   # No need for manual configuration
 
   # Helpers do RSpec Rails são incluídos automaticamente
-  
+
   # Incluir helpers customizados
   # config.include RequestHelpers, type: :request
-  
+
   # Configurações do Shoulda Matchers
   config.include(Shoulda::Matchers::ActiveRecord, type: :model)
   config.include(Shoulda::Matchers::ActiveModel, type: :model)
 end
-

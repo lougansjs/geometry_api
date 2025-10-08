@@ -54,4 +54,3 @@ class Frame < ApplicationRecord
     end
   end
 end
-

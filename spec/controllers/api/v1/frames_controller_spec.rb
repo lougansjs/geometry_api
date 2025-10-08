@@ -60,7 +60,7 @@ RSpec.describe 'Frames API', type: :request do
       it 'returns frame metrics' do
         get "/api/v1/frames/#{frame.id}"
         expect(response).to have_http_status(:ok)
-        
+
         json_response = JSON.parse(response.body)
         expect(json_response).to have_key('frame')
         expect(json_response).to have_key('total_circles')

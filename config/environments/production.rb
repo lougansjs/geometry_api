@@ -90,12 +90,12 @@ Rails.application.configure do
   config.after_initialize do
     if defined?(Rack::Attack)
       # Configurar cache store para Redis em produção (se disponível)
-      if ENV['REDIS_URL'].present?
-        Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(url: ENV['REDIS_URL'])
+      if ENV["REDIS_URL"].present?
+        Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(url: ENV["REDIS_URL"])
       end
-      
+
       # Log de tentativas de rate limiting em produção
-      ActiveSupport::Notifications.subscribe('rack.attack') do |name, start, finish, request_id, payload|
+      ActiveSupport::Notifications.subscribe("rack.attack") do |name, start, finish, request_id, payload|
         req = payload[:request]
         Rails.logger.warn "[Rack::Attack] #{req.ip} #{req.request_method} #{req.fullpath} - #{payload[:match_discriminator]}"
       end

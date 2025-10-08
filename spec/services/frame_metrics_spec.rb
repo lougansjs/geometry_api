@@ -35,35 +35,35 @@ RSpec.describe FrameMetrics, type: :service do
 
       it 'returns complete metrics' do
         result = frame_metrics.calculate
-        
+
         expect(result).to include(
           frame: frame,
           total_circles: 3,
-          highest_circles: [circle1],
-          lowest_circles: [circle2],
-          leftmost_circles: [circle3],
-          rightmost_circles: [circle2]
+          highest_circles: [ circle1 ],
+          lowest_circles: [ circle2 ],
+          leftmost_circles: [ circle3 ],
+          rightmost_circles: [ circle2 ]
         )
       end
 
       it 'identifies highest circle correctly' do
         result = frame_metrics.calculate
-        expect(result[:highest_circles]).to eq([circle1])
+        expect(result[:highest_circles]).to eq([ circle1 ])
       end
 
       it 'identifies lowest circle correctly' do
         result = frame_metrics.calculate
-        expect(result[:lowest_circles]).to eq([circle2])
+        expect(result[:lowest_circles]).to eq([ circle2 ])
       end
 
       it 'identifies leftmost circle correctly' do
         result = frame_metrics.calculate
-        expect(result[:leftmost_circles]).to eq([circle3])
+        expect(result[:leftmost_circles]).to eq([ circle3 ])
       end
 
       it 'identifies rightmost circle correctly' do
         result = frame_metrics.calculate
-        expect(result[:rightmost_circles]).to eq([circle2])
+        expect(result[:rightmost_circles]).to eq([ circle2 ])
       end
     end
 
@@ -74,10 +74,10 @@ RSpec.describe FrameMetrics, type: :service do
       it 'handles ties correctly' do
         result = frame_metrics.calculate
 
-        expect(result[:highest_circles]).to eq([circle1, circle2])
-        expect(result[:lowest_circles]).to eq([circle1, circle2])
-        expect(result[:leftmost_circles]).to be_in([[circle1], [circle2]])
-        expect(result[:rightmost_circles]).to be_in([[circle1], [circle2]])
+        expect(result[:highest_circles]).to eq([ circle1, circle2 ])
+        expect(result[:lowest_circles]).to eq([ circle1, circle2 ])
+        expect(result[:leftmost_circles]).to be_in([ [ circle1 ], [ circle2 ] ])
+        expect(result[:rightmost_circles]).to be_in([ [ circle1 ], [ circle2 ] ])
       end
     end
 
@@ -86,11 +86,11 @@ RSpec.describe FrameMetrics, type: :service do
 
       it 'returns same circle for all positions' do
         result = frame_metrics.calculate
-        
-        expect(result[:highest_circles]).to eq([circle])
-        expect(result[:lowest_circles]).to eq([circle])
-        expect(result[:leftmost_circles]).to eq([circle])
-        expect(result[:rightmost_circles]).to eq([circle])
+
+        expect(result[:highest_circles]).to eq([ circle ])
+        expect(result[:lowest_circles]).to eq([ circle ])
+        expect(result[:leftmost_circles]).to eq([ circle ])
+        expect(result[:rightmost_circles]).to eq([ circle ])
       end
     end
   end
@@ -102,7 +102,7 @@ RSpec.describe FrameMetrics, type: :service do
     describe '#base_metrics' do
       it 'returns frame and total circles count' do
         result = frame_metrics.send(:base_metrics)
-        
+
         expect(result).to eq({
           frame: frame,
           total_circles: 2
@@ -113,37 +113,37 @@ RSpec.describe FrameMetrics, type: :service do
     describe '#circles_metrics' do
       it 'returns all circle position metrics' do
         result = frame_metrics.send(:circles_metrics)
-        
+
         expect(result).to include(
-          highest_circles: [circle1],
-          lowest_circles: [circle2],
-          leftmost_circles: [circle1],
-          rightmost_circles: [circle2]
+          highest_circles: [ circle1 ],
+          lowest_circles: [ circle2 ],
+          leftmost_circles: [ circle1 ],
+          rightmost_circles: [ circle2 ]
         )
       end
     end
 
     describe '#highest_circle' do
       it 'returns circle with highest center_y' do
-        expect(frame_metrics.send(:highest_circles)).to eq([circle1])
+        expect(frame_metrics.send(:highest_circles)).to eq([ circle1 ])
       end
     end
 
     describe '#lowest_circle' do
       it 'returns circle with lowest center_y' do
-        expect(frame_metrics.send(:lowest_circles)).to eq([circle2])
+        expect(frame_metrics.send(:lowest_circles)).to eq([ circle2 ])
       end
     end
 
     describe '#leftmost_circle' do
       it 'returns circle with lowest center_x' do
-        expect(frame_metrics.send(:leftmost_circles)).to eq([circle1])
+        expect(frame_metrics.send(:leftmost_circles)).to eq([ circle1 ])
       end
     end
 
     describe '#rightmost_circle' do
       it 'returns circle with highest center_x' do
-        expect(frame_metrics.send(:rightmost_circles)).to eq([circle2])
+        expect(frame_metrics.send(:rightmost_circles)).to eq([ circle2 ])
       end
     end
   end
@@ -158,10 +158,10 @@ RSpec.describe FrameMetrics, type: :service do
       it 'correctly identifies extreme positions' do
         result = frame_metrics.calculate
 
-        expect(result[:leftmost_circles]).to eq([leftmost])
-        expect(result[:rightmost_circles]).to eq([rightmost, highest])
-        expect(result[:highest_circles]).to eq([highest])
-        expect(result[:lowest_circles]).to eq([lowest])
+        expect(result[:leftmost_circles]).to eq([ leftmost ])
+        expect(result[:rightmost_circles]).to eq([ rightmost, highest ])
+        expect(result[:highest_circles]).to eq([ highest ])
+        expect(result[:lowest_circles]).to eq([ lowest ])
       end
     end
 
@@ -172,10 +172,10 @@ RSpec.describe FrameMetrics, type: :service do
       it 'handles decimal precision correctly' do
         result = frame_metrics.calculate
 
-        expect(result[:leftmost_circles]).to eq([circle1])
-        expect(result[:rightmost_circles]).to eq([circle2])
-        expect(result[:lowest_circles]).to eq([circle2])
-        expect(result[:highest_circles]).to eq([circle1])
+        expect(result[:leftmost_circles]).to eq([ circle1 ])
+        expect(result[:rightmost_circles]).to eq([ circle2 ])
+        expect(result[:lowest_circles]).to eq([ circle2 ])
+        expect(result[:highest_circles]).to eq([ circle1 ])
       end
     end
   end
@@ -187,14 +187,14 @@ RSpec.describe FrameMetrics, type: :service do
     it 'maintains consistency across multiple calls' do
       result1 = frame_metrics.calculate
       result2 = frame_metrics.calculate
-      
+
       expect(result1).to eq(result2)
     end
 
     it 'reflects changes when circles are added' do
       initial_result = frame_metrics.calculate
       expect(initial_result[:total_circles]).to eq(2)
-      
+
       create(:circle, frame: frame)
       new_result = frame_metrics.calculate
       expect(new_result[:total_circles]).to eq(3)

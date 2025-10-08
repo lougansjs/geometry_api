@@ -28,7 +28,7 @@ RSpec.describe 'Api::V1::Frames', type: :request do
                          id: { type: :integer },
                          diameter: { type: :string },
                          center_x: { type: :string },
-                         center_y: { type: :string },
+                         center_y: { type: :string }
                        }
                      }
                    }
@@ -168,9 +168,9 @@ RSpec.describe 'Api::V1::Frames', type: :request do
                required: %w[frame total_circles highest_circles lowest_circles leftmost_circles rightmost_circles]
 
         let(:id) { frame01.id }
-        
+
         before { circle01 }
-        
+
         run_test!
       end
 
@@ -324,7 +324,7 @@ RSpec.describe 'Api::V1::Frames', type: :request do
                    id: { type: :integer },
                    diameter: { type: :string },
                    center_x: { type: :string },
-                   center_y: { type: :string },
+                   center_y: { type: :string }
                  },
                  required: %w[id diameter center_x center_y]
                }

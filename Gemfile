@@ -56,13 +56,13 @@ group :development, :test do
 
   # RSpec testing framework
   gem "rspec-rails", "~> 8.0"
-  
+
   # FactoryBot for test data generation
   gem "factory_bot_rails", "~> 6.4"
-  
+
   # Database cleaner for RSpec
   gem "database_cleaner-active_record", "~> 2.2"
-  
+
   # Shoulda matchers for RSpec
   gem "shoulda-matchers", "~> 6.0"
 end

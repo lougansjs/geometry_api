@@ -23,7 +23,7 @@ RSpec.describe 'Api::V1::Circles', type: :request do
                    id: { type: :integer },
                    diameter: { type: :string },
                    center_x: { type: :string },
-                   center_y: { type: :string },
+                   center_y: { type: :string }
                  },
                  required: %w[id diameter center_x center_y]
                }
@@ -80,7 +80,7 @@ RSpec.describe 'Api::V1::Circles', type: :request do
                  id: { type: :integer },
                  diameter: { type: :string },
                  center_x: { type: :string },
-                 center_y: { type: :string },
+                 center_y: { type: :string }
                },
                required: %w[id diameter center_x center_y]
 
@@ -121,7 +121,7 @@ RSpec.describe 'Api::V1::Circles', type: :request do
                  id: { type: :integer },
                  diameter: { type: :string },
                  center_x: { type: :string },
-                 center_y: { type: :string },
+                 center_y: { type: :string }
                },
                required: %w[id diameter center_x center_y]
 
@@ -184,11 +184,11 @@ RSpec.describe 'Api::V1::Circles', type: :request do
                required: %w[errors]
 
         let(:id) { circle01.id }
-        
+
         before do
           allow_any_instance_of(Circle).to receive(:destroy!).and_raise(ActiveRecord::RecordNotDestroyed)
           allow_any_instance_of(Circle).to receive(:errors).and_return(
-            double('errors', full_messages: ['Cannot delete circle due to business rules'])
+            double('errors', full_messages: [ 'Cannot delete circle due to business rules' ])
           )
         end
 

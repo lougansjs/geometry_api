@@ -1,9 +1,9 @@
 FactoryBot.define do
   factory :frame do
-    sequence(:width) { |n| [200.0 + (n * 10), 1000.0].min }
-    sequence(:height) { |n| [200.0 + (n * 10), 1000.0].min }
-    sequence(:center_x) { |n| [100.0 + (n * 50), 1000.0].min }
-    sequence(:center_y) { |n| [100.0 + (n * 50), 1000.0].min }
+    sequence(:width) { |n| [ 200.0 + (n * 10), 1000.0 ].min }
+    sequence(:height) { |n| [ 200.0 + (n * 10), 1000.0 ].min }
+    sequence(:center_x) { |n| [ 100.0 + (n * 50), 1000.0 ].min }
+    sequence(:center_y) { |n| [ 100.0 + (n * 50), 1000.0 ].min }
 
     trait :small do
       width { 100.0 }

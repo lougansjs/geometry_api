@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :circle do
     association :frame
     diameter { rand(10.0..50.0).round(2) }
-    
+
     # Calcular coordenadas que cabem no frame
     center_x do
       frame = instance.frame || Frame.first || create(:frame)
@@ -10,7 +10,7 @@ FactoryBot.define do
       max_x = frame.right_edge - 25.0
       rand(min_x..max_x).round(2)
     end
-    
+
     center_y do
       frame = instance.frame || Frame.first || create(:frame)
       min_y = frame.bottom_edge + 25.0  # Margem de 25px

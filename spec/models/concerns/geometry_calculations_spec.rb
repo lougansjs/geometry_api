@@ -78,7 +78,7 @@ RSpec.describe GeometryCalculations, type: :concern do
         a_to_b = test_instance.euclidean_distance(0, 0, 3, 4)
         b_to_c = test_instance.euclidean_distance(3, 4, 6, 8)
         a_to_c = test_instance.euclidean_distance(0, 0, 6, 8)
-        
+
         expect(a_to_c).to be <= (a_to_b + b_to_c)
       end
 
