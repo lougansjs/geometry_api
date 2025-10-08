@@ -11,6 +11,9 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.0].define(version: 2025_10_01_023751) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
   create_table "circles", force: :cascade do |t|
     t.decimal "diameter", precision: 10, scale: 2, null: false
     t.decimal "center_x", precision: 10, scale: 2, null: false
@@ -21,7 +24,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_01_023751) do
     t.index ["center_x", "center_y"], name: "index_circles_on_center_x_and_center_y"
     t.index ["frame_id", "center_x", "center_y"], name: "index_circles_on_frame_id_and_center_x_and_center_y"
     t.index ["frame_id"], name: "index_circles_on_frame_id"
-    t.check_constraint "diameter > 0", name: "check_diameter_check"
+    t.check_constraint "diameter > 0::numeric", name: "check_diameter_check"
   end
 
   create_table "frames", force: :cascade do |t|
@@ -31,8 +34,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_01_023751) do
     t.decimal "center_y", precision: 10, scale: 2, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.check_constraint "height > 0", name: "check_height_check"
-    t.check_constraint "width > 0", name: "check_width_check"
+    t.check_constraint "height > 0::numeric", name: "check_height_check"
+    t.check_constraint "width > 0::numeric", name: "check_width_check"
   end
 
   add_foreign_key "circles", "frames", on_delete: :restrict
