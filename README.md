@@ -1,6 +1,6 @@
 # Geometry API
 
-Uma API RESTful desenvolvida em Ruby on Rails para gerenciamento de formas geométricas 2D, especificamente frames (retângulos) e círculos. A aplicação permite criar, visualizar e gerenciar frames com círculos associados, incluindo validações geométricas para evitar sobreposições e garantir que os círculos se encaixem dentro dos frames.
+Uma API RESTful desenvolvida em Ruby on Rails para gerenciamento de formas geométricas 2D, especificamente frames (retângulos) e círculos. A API permite criar, visualizar e gerenciar frames com círculos associados, incluindo validações geométricas para evitar sobreposições e garantir que os círculos se encaixem dentro dos frames.
 
 ## 📋 Sumário
 
@@ -31,7 +31,6 @@ ruby --version
 ### Dependências Principais
 - **Ruby 3.3.4+**
 - **PostgreSQL 15+** (banco de dados principal)
-- **Bundler** (gerenciador de dependências Ruby)
 - **Docker e Docker Compose** (opcional, para desenvolvimento com containers)
 
 ## Configuração
