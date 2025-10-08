@@ -2,6 +2,14 @@ require_relative "boot"
 
 require "rails/all"
 
+if Rails.env.development?
+  begin
+    require "debug/prelude"
+  rescue LoadError
+    warn "[debug] gem 'debug' não encontrada; prosseguindo sem debugger"
+  end
+end
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
