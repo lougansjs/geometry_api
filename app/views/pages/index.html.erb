@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizador de Formas SVG - Avançado</title>
+  <style>
+    :root {
+      --bg-primary: #f0f0f0;
+      --bg-secondary: white;
+      --bg-canvas: #fafafa;
+      --text-primary: #333;
+      --text-secondary: #666;
+      --text-muted: #999;
+      --border-color: #ddd;
+      --info-bg: #e3f2fd;
+      --error-bg: #ffebee;
+      --error-text: #c62828;
+      --success-color: #4CAF50;
+      --success-hover: #45a049;
+      --frame-color: #2196F3;
+      --circle-color: #F44336;
+      --shadow: rgba(0,0,0,0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --bg-canvas: #1e1e1e;
+      --text-primary: #e0e0e0;
+      --text-secondary: #b0b0b0;
+      --text-muted: #707070;
+      --border-color: #404040;
+      --info-bg: #1e3a5f;
+      --error-bg: #4a1a1a;
+      --error-text: #ff6b6b;
+      --shadow: rgba(0,0,0,0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background-color: var(--bg-secondary);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px var(--shadow);
+      transition: background-color 0.3s;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    h1 {
+      color: var(--text-primary);
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 2px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.3s;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      border-color: var(--success-color);
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      padding: 12px 24px;
+      font-size: 15px;
+      cursor: pointer;
+      background-color: var(--success-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      transition: all 0.3s;
+      font-weight: 500;
+      box-shadow: 0 2px 5px var(--shadow);
+    }
+    
+    button:hover:not(:disabled) {
+      background-color: var(--success-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px var(--shadow);
+    }
+    
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.secondary {
+      background-color: #2196F3;
+    }
+
+    button.secondary:hover:not(:disabled) {
+      background-color: #1976D2;
+    }
+
+    button.danger {
+      background-color: #f44336;
+    }
+
+    button.danger:hover:not(:disabled) {
+      background-color: #d32f2f;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 15px;
+      background-color: var(--info-bg);
+      border-radius: 8px;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-item label {
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .filter-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .zoom-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .zoom-level {
+      font-weight: bold;
+      min-width: 60px;
+      text-align: center;
+    }
+    
+    .svg-container {
+      width: 100%;
+      height: 600px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: var(--bg-canvas);
+      position: relative;
+      cursor: grab;
+      transition: background-color 0.3s;
+    }
+
+    .svg-container:active {
+      cursor: grabbing;
+    }
+
+    .svg-container.panning {
+      cursor: grabbing;
+    }
+    
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .frame {
+      fill: none;
+      stroke: var(--frame-color);
+      stroke-width: 2;
+      transition: stroke-width 0.2s, opacity 0.3s;
+    }
+
+    .frame:hover {
+      stroke-width: 4;
+      filter: drop-shadow(0 0 8px var(--frame-color));
+    }
+    
+    .circle {
+      fill: rgba(244, 67, 54, 0.6);
+      stroke: var(--circle-color);
+      stroke-width: 2;
+      transition: all 0.2s;
+    }
+
+    .circle:hover {
+      fill: rgba(244, 67, 54, 0.9);
+      stroke-width: 3;
+      filter: drop-shadow(0 0 8px var(--circle-color));
+      transform-origin: center;
+    }
+
+    .shape-enter {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    .info {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: var(--info-bg);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .info-item {
+      padding: 10px;
+      background-color: var(--bg-secondary);
+      border-radius: 6px;
+      border-left: 4px solid var(--success-color);
+    }
+
+    .info-item strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .info-item span {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      border: 4px solid var(--border-color);
+      border-top: 4px solid var(--success-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error {
+      background-color: var(--error-bg);
+      color: var(--error-text);
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .error-close {
+      background: none;
+      border: none;
+      color: var(--error-text);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      box-shadow: none;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 1000;
+      white-space: pre-line;
+      max-width: 250px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .controls, .filters {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .svg-container {
+        height: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎨 Visualizador de Formas Geométricas</h1>
+      <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌓</button>
+    </div>
+    
+    <div class="controls">
+      <button id="loadBtn">🔄 Carregar Formas</button>
+      <button id="clearBtn" class="danger">🗑️ Limpar</button>
+      <button id="exportBtn" class="secondary">💾 Exportar SVG</button>
+      <button id="fitBtn" class="secondary">🔍 Ajustar Zoom</button>
+    </div>
+
+    <div class="filters">
+      <div class="filter-item">
+        <input type="checkbox" id="showFrames" checked>
+        <label for="showFrames">Mostrar Frames</label>
+      </div>
+      <div class="filter-item">
+        <input type="checkbox" id="showCircles" checked>
+        <label for="showCircles">Mostrar Círculos</label>
+      </div>
+      <div class="zoom-controls">
+        <button id="zoomOut">➖</button>
+        <span class="zoom-level" id="zoomLevel">100%</span>
+        <button id="zoomIn">➕</button>
+        <button id="resetZoom" class="secondary">↺ Reset</button>
+      </div>
+    </div>
+    
+    <div id="errorMsg" class="error" style="display: none;">
+      <span id="errorText"></span>
+      <button class="error-close" id="closeError">✕</button>
+    </div>
+    
+    <div class="svg-container" id="svgContainer">
+      <svg id="canvas" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet">
+        <g id="mainGroup">
+          <text x="500" y="300" text-anchor="middle" fill="var(--text-muted)" font-size="18">
+            Clique em "Carregar Formas" para visualizar
+          </text>
+        </g>
+      </svg>
+    </div>
+    
+    <div class="info">
+      <strong>📊 Estatísticas:</strong>
+      <div class="info-grid">
+        <div class="info-item">
+          <strong>Frames</strong>
+          <span id="frameCount">0</span>
+        </div>
+        <div class="info-item">
+          <strong>Círculos</strong>
+          <span id="circleCount">0</span>
+        </div>
+        <div class="info-item">
+          <strong>Zoom</strong>
+          <span id="zoomInfo">100%</span>
+        </div>
+        <div class="info-item">
+          <strong>Status</strong>
+          <span id="statusInfo" style="font-size: 16px;">Aguardando</span>
+        </div>
+      </div>
+      <div style="margin-top: 15px; color: var(--text-secondary);">
+        <em>💡 Dica: Use a roda do mouse para zoom e arraste para mover o canvas</em>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configurações
+    const API_URL = '/api/v1/frames';
+    const ZOOM_STEP = 0.1;
+    const MIN_ZOOM = 0.1;
+    const MAX_ZOOM = 10;
+
+    // Elementos DOM
+    const canvas = document.getElementById('canvas');
+    const mainGroup = document.getElementById('mainGroup');
+    const svgContainer = document.getElementById('svgContainer');
+    const loadBtn = document.getElementById('loadBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const fitBtn = document.getElementById('fitBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const errorText = document.getElementById('errorText');
+    const closeError = document.getElementById('closeError');
+    const themeToggle = document.getElementById('themeToggle');
+    const showFrames = document.getElementById('showFrames');
+    const showCircles = document.getElementById('showCircles');
+    const zoomIn = document.getElementById('zoomIn');
+    const zoomOut = document.getElementById('zoomOut');
+    const resetZoom = document.getElementById('resetZoom');
+    const zoomLevel = document.getElementById('zoomLevel');
+    const frameCount = document.getElementById('frameCount');
+    const circleCount = document.getElementById('circleCount');
+    const zoomInfo = document.getElementById('zoomInfo');
+    const statusInfo = document.getElementById('statusInfo');
+
+    // Estado da aplicação
+    let currentZoom = 1;
+    let isPanning = false;
+    let startPoint = { x: 0, y: 0 };
+    let currentTranslate = { x: 0, y: 0 };
+    let framesData = [];
+
+    // Tema
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌓';
+    }
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌓';
+    }
+
+    // Mensagens
+    function showError(message) {
+      errorText.textContent = message;
+      errorMsg.style.display = 'flex';
+      statusInfo.textContent = '❌ Erro';
+    }
+
+    function hideError() {
+      errorMsg.style.display = 'none';
+    }
+
+    function updateStatus(status, emoji = '✅') {
+      statusInfo.innerHTML = `${emoji} ${status}`;
+    }
+
+    // Canvas
+    function clearCanvas() {
+      mainGroup.innerHTML = '<text x="500" y="300" text-anchor="middle" fill="var(--text-muted)" font-size="18">Canvas limpo. Clique em "Carregar Formas" para visualizar</text>';
+      framesData = [];
+      updateStats(0, 0);
+      resetTransform();
+      updateStatus('Limpo', '🧹');
+    }
+
+    function updateStats(frames, circles) {
+      frameCount.textContent = frames;
+      circleCount.textContent = circles;
+    }
+
+    // Zoom e Pan
+    function updateTransform() {
+      mainGroup.setAttribute('transform', 
+        `translate(${currentTranslate.x}, ${currentTranslate.y}) scale(${currentZoom})`
+      );
+      zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+      zoomInfo.textContent = `${Math.round(currentZoom * 100)}%`;
+    }
+
+    function resetTransform() {
+      currentZoom = 1;
+      currentTranslate = { x: 0, y: 0 };
+      updateTransform();
+    }
+
+    function zoom(delta) {
+      const oldZoom = currentZoom;
+      currentZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, currentZoom + delta));
+      
+      // Ajustar translação para zoom no centro
+      const rect = svgContainer.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const scale = currentZoom / oldZoom;
+      currentTranslate.x = centerX - (centerX - currentTranslate.x) * scale;
+      currentTranslate.y = centerY - (centerY - currentTranslate.y) * scale;
+      
+      updateTransform();
+    }
+
+    function fitToView() {
+      if (framesData.length === 0) return;
+
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+      framesData.forEach(frame => {
+        const centerX = parseFloat(frame.center_x);
+        const centerY = parseFloat(frame.center_y);
+        const width = parseFloat(frame.width);
+        const height = parseFloat(frame.height);
+
+        const x1 = centerX - width / 2;
+        const y1 = centerY - height / 2;
+        const x2 = centerX + width / 2;
+        const y2 = centerY + height / 2;
+
+        minX = Math.min(minX, x1);
+        minY = Math.min(minY, y1);
+        maxX = Math.max(maxX, x2);
+        maxY = Math.max(maxY, y2);
+      });
+
+      const contentWidth = maxX - minX;
+      const contentHeight = maxY - minY;
+      const padding = 50;
+
+      const scaleX = (1000 - padding * 2) / contentWidth;
+      const scaleY = (600 - padding * 2) / contentHeight;
+      currentZoom = Math.min(scaleX, scaleY, MAX_ZOOM);
+
+      const contentCenterX = (minX + maxX) / 2;
+      const contentCenterY = (minY + maxY) / 2;
+
+      currentTranslate.x = 500 - contentCenterX * currentZoom;
+      currentTranslate.y = 300 - contentCenterY * currentZoom;
+
+      updateTransform();
+    }
+
+    // Event Listeners - Pan
+    svgContainer.addEventListener('mousedown', (e) => {
+      isPanning = true;
+      svgContainer.classList.add('panning');
+      startPoint = { x: e.clientX - currentTranslate.x, y: e.clientY - currentTranslate.y };
+    });
+
+    svgContainer.addEventListener('mousemove', (e) => {
+      if (!isPanning) return;
+      currentTranslate.x = e.clientX - startPoint.x;
+      currentTranslate.y = e.clientY - startPoint.y;
+      updateTransform();
+    });
+
+    svgContainer.addEventListener('mouseup', () => {
+      isPanning = false;
+      svgContainer.classList.remove('panning');
+    });
+
+    svgContainer.addEventListener('mouseleave', () => {
+      isPanning = false;
+      svgContainer.classList.remove('panning');
+    });
+
+    // Event Listeners - Zoom com roda do mouse
+    svgContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+      zoom(delta);
+    });
+
+    // Desenhar formas
+    function drawShapes(frames) {
+      mainGroup.innerHTML = '';
+      framesData = frames;
+      
+      let totalCircles = 0;
+
+      frames.forEach((frame, index) => {
+        // Grupo para animação
+        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        group.style.animationDelay = `${index * 0.02}s`;
+        
+        // Frame
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        const centerX = parseFloat(frame.center_x);
+        const centerY = parseFloat(frame.center_y);
+        const width = parseFloat(frame.width);
+        const height = parseFloat(frame.height);
+        
+        const x = centerX - (width / 2);
+        const y = centerY - (height / 2);
+        
+        rect.setAttribute('x', x);
+        rect.setAttribute('y', y);
+        rect.setAttribute('width', width);
+        rect.setAttribute('height', height);
+        rect.setAttribute('class', 'frame shape-enter');
+        rect.setAttribute('data-type', 'frame');
+        
+        const frameTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        frameTitle.textContent = `Frame #${frame.id}\nCentro: (${centerX.toFixed(1)}, ${centerY.toFixed(1)})\nTamanho: ${width.toFixed(1)}x${height.toFixed(1)}\nCírculos: ${frame.circles ? frame.circles.length : 0}`;
+        rect.appendChild(frameTitle);
+        
+        group.appendChild(rect);
+
+        // Círculos
+        if (frame.circles && frame.circles.length > 0) {
+          frame.circles.forEach(circle => {
+            const circ = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            
+            const circleCenterX = parseFloat(circle.center_x);
+            const circleCenterY = parseFloat(circle.center_y);
+            const diameter = parseFloat(circle.diameter);
+            const radius = diameter / 2;
+            
+            circ.setAttribute('cx', circleCenterX);
+            circ.setAttribute('cy', circleCenterY);
+            circ.setAttribute('r', radius);
+            circ.setAttribute('class', 'circle shape-enter');
+            circ.setAttribute('data-type', 'circle');
+            
+            const circleTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            circleTitle.textContent = `Círculo #${circle.id} (Frame #${frame.id})\nCentro: (${circleCenterX.toFixed(1)}, ${circleCenterY.toFixed(1)})\nDiâmetro: ${diameter.toFixed(1)}`;
+            circ.appendChild(circleTitle);
+            
+            group.appendChild(circ);
+            totalCircles++;
+          });
+        }
+
+        mainGroup.appendChild(group);
+      });
+
+      updateStats(frames.length, totalCircles);
+      updateStatus('Carregado', '✅');
+      
+      // Ajustar zoom automaticamente
+      setTimeout(() => fitToView(), 100);
+    }
+
+    // Carregar formas
+    async function loadShapes() {
+      loadBtn.disabled = true;
+      loadBtn.innerHTML = '⏳ Carregando...';
+      updateStatus('Carregando...', '⏳');
+      hideError();
+      
+      try {
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+          throw new Error(`Erro na API: ${response.status} - ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('Dados recebidos:', data);
+        
+        if (Array.isArray(data)) {
+          if (data.length === 0) {
+            throw new Error('Nenhuma forma encontrada na API.');
+          }
+          drawShapes(data);
+        } else {
+          throw new Error('Formato de dados inválido. Esperado um array de frames.');
+        }
+        
+      } catch (error) {
+        console.error('Erro ao carregar formas:', error);
+        showError(`Erro ao carregar formas: ${error.message}`);
+        clearCanvas();
+      } finally {
+        loadBtn.disabled = false;
+        loadBtn.innerHTML = '🔄 Carregar Formas';
+      }
+    }
+
+    // Exportar SVG
+    function exportSVG() {
+      const svgData = canvas.outerHTML;
+      const blob = new Blob([svgData], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `formas-geometricas-${Date.now()}.svg`;
+      link.click();
+      URL.revokeObjectURL(url);
+      updateStatus('Exportado', '💾');
+    }
+
+    // Filtros
+    function toggleFrames() {
+      const frames = mainGroup.querySelectorAll('[data-type="frame"]');
+      frames.forEach(frame => {
+        frame.style.display = showFrames.checked ? 'block' : 'none';
+      });
+    }
+
+    function toggleCircles() {
+      const circles = mainGroup.querySelectorAll('[data-type="circle"]');
+      circles.forEach(circle => {
+        circle.style.display = showCircles.checked ? 'block' : 'none';
+      });
+    }
+
+    // Event Listeners
+    loadBtn.addEventListener('click', loadShapes);
+    clearBtn.addEventListener('click', clearCanvas);
+    exportBtn.addEventListener('click', exportSVG);
+    fitBtn.addEventListener('click', fitToView);
+    closeError.addEventListener('click', hideError);
+    themeToggle.addEventListener('click', toggleTheme);
+    showFrames.addEventListener('change', toggleFrames);
+    showCircles.addEventListener('change', toggleCircles);
+    zoomIn.addEventListener('click', () => zoom(ZOOM_STEP));
+    zoomOut.addEventListener('click', () => zoom(-ZOOM_STEP));
+    resetZoom.addEventListener('click', resetTransform);
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === '=' || e.key === '+') {
+          e.preventDefault();
+          zoom(ZOOM_STEP);
+        } else if (e.key === '-') {
+          e.preventDefault();
+          zoom(-ZOOM_STEP);
+        } else if (e.key === '0') {
+          e.preventDefault();
+          resetTransform();
+        }
+      }
+    });
+
+    // Inicialização
+    loadTheme();
+    loadShapes();
+  </script>
+</body>
+</html>
