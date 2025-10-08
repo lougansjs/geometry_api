@@ -1,0 +1,630 @@
+---
+openapi: 3.0.1
+info:
+  title: Geometry API
+  version: v1
+  description: API para gerenciamento de frames e círculos geométricos
+paths:
+  "/api/v1/circles":
+    get:
+      summary: Lista todos os círculos
+      tags:
+      - Circles
+      description: Retorna uma lista de círculos, com opção de filtrar por frame_id
+        e buscar por raio
+      parameters:
+      - name: frame_id
+        in: query
+        required: false
+        description: ID do frame para filtrar círculos
+        schema:
+          type: integer
+      - name: center_x
+        in: query
+        required: true
+        description: Coordenada X do centro para busca por raio
+        schema:
+          type: number
+      - name: center_y
+        in: query
+        required: true
+        description: Coordenada Y do centro para busca por raio
+        schema:
+          type: number
+      - name: radius
+        in: query
+        required: true
+        description: Raio para busca de círculos
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Lista de círculos retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    diameter:
+                      type: number
+                    center_x:
+                      type: number
+                    center_y:
+                      type: number
+                    frame_id:
+                      type: integer
+                  required:
+                  - id
+                  - diameter
+                  - center_x
+                  - center_y
+                  - frame_id
+        '400':
+          description: Parâmetros inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+        '404':
+          description: Nenhum círculo encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+  "/api/v1/circles/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID do círculo
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Busca um círculo por ID
+      tags:
+      - Circles
+      description: Retorna um círculo específico pelo seu ID
+      responses:
+        '200':
+          description: Círculo encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  diameter:
+                    type: number
+                  center_x:
+                    type: number
+                  center_y:
+                    type: number
+                  frame_id:
+                    type: integer
+                required:
+                - id
+                - diameter
+                - center_x
+                - center_y
+                - frame_id
+        '404':
+          description: Círculo não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+    put:
+      summary: Atualiza um círculo
+      tags:
+      - Circles
+      description: Atualiza um círculo existente
+      parameters: []
+      responses:
+        '200':
+          description: Círculo atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  diameter:
+                    type: number
+                  center_x:
+                    type: number
+                  center_y:
+                    type: number
+                  frame_id:
+                    type: integer
+                required:
+                - id
+                - diameter
+                - center_x
+                - center_y
+                - frame_id
+        '404':
+          description: Círculo não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                center_x:
+                  type: number
+                center_y:
+                  type: number
+              required:
+              - center_x
+              - center_y
+    delete:
+      summary: Remove um círculo
+      tags:
+      - Circles
+      description: Remove um círculo existente
+      responses:
+        '204':
+          description: Círculo removido com sucesso
+        '404':
+          description: Círculo não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+        '422':
+          description: Erro ao remover círculo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - errors
+  "/api/v1/frames":
+    get:
+      summary: Lista todos os frames
+      tags:
+      - Frames
+      description: Retorna uma lista de todos os frames com seus círculos
+      responses:
+        '200':
+          description: Lista de frames retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    width:
+                      type: number
+                    height:
+                      type: number
+                    center_x:
+                      type: number
+                    center_y:
+                      type: number
+                    circles:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          diameter:
+                            type: number
+                          center_x:
+                            type: number
+                          center_y:
+                            type: number
+                          frame_id:
+                            type: integer
+                  required:
+                  - id
+                  - width
+                  - height
+                  - center_x
+                  - center_y
+                  - circles
+    post:
+      summary: Cria um novo frame
+      tags:
+      - Frames
+      description: Cria um novo frame
+      parameters: []
+      responses:
+        '201':
+          description: Frame criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  width:
+                    type: number
+                  height:
+                    type: number
+                  center_x:
+                    type: number
+                  center_y:
+                    type: number
+                required:
+                - id
+                - width
+                - height
+                - center_x
+                - center_y
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                width:
+                  type: number
+                height:
+                  type: number
+                center_x:
+                  type: number
+                center_y:
+                  type: number
+                circles_attributes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      diameter:
+                        type: number
+                      center_x:
+                        type: number
+                      center_y:
+                        type: number
+              required:
+              - width
+              - height
+              - center_x
+              - center_y
+  "/api/v1/frames/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID do frame
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Busca um frame por ID com métricas
+      tags:
+      - Frames
+      description: Retorna um frame específico com suas métricas calculadas
+      responses:
+        '200':
+          description: Frame encontrado com métricas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  frame_id:
+                    type: integer
+                  total_circles:
+                    type: integer
+                  total_area:
+                    type: number
+                  frame_area:
+                    type: number
+                  coverage_percentage:
+                    type: number
+                  average_circle_area:
+                    type: number
+                  largest_circle:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      diameter:
+                        type: number
+                      area:
+                        type: number
+                  smallest_circle:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      diameter:
+                        type: number
+                      area:
+                        type: number
+                required:
+                - frame_id
+                - total_circles
+                - total_area
+                - frame_area
+                - coverage_percentage
+                - average_circle_area
+        '404':
+          description: Frame não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+    put:
+      summary: Atualiza um frame
+      tags:
+      - Frames
+      description: Atualiza um frame existente
+      parameters: []
+      responses:
+        '200':
+          description: Frame atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  width:
+                    type: number
+                  height:
+                    type: number
+                  center_x:
+                    type: number
+                  center_y:
+                    type: number
+                required:
+                - id
+                - width
+                - height
+                - center_x
+                - center_y
+        '404':
+          description: Frame não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                width:
+                  type: number
+                height:
+                  type: number
+                center_x:
+                  type: number
+                center_y:
+                  type: number
+              required:
+              - width
+              - height
+              - center_x
+              - center_y
+    delete:
+      summary: Remove um frame
+      tags:
+      - Frames
+      description: Remove um frame existente (apenas se não tiver círculos associados)
+      responses:
+        '204':
+          description: Frame removido com sucesso
+        '404':
+          description: Frame não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+        '422':
+          description: Erro ao remover frame (possui círculos associados)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                required:
+                - errors
+  "/api/v1/frames/{id}/circles":
+    parameters:
+    - name: id
+      in: path
+      description: ID do frame
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Adiciona círculos a um frame
+      tags:
+      - Frames
+      description: Adiciona múltiplos círculos a um frame existente
+      parameters: []
+      responses:
+        '201':
+          description: Círculos adicionados com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    diameter:
+                      type: number
+                    center_x:
+                      type: number
+                    center_y:
+                      type: number
+                    frame_id:
+                      type: integer
+                  required:
+                  - id
+                  - diameter
+                  - center_x
+                  - center_y
+                  - frame_id
+        '404':
+          description: Frame não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                required:
+                - errors
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required:
+                - error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                circles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      diameter:
+                        type: number
+                      center_x:
+                        type: number
+                      center_y:
+                        type: number
+                    required:
+                    - diameter
+                    - center_x
+                    - center_y
+              required:
+              - circles
+servers:
+- url: http://localhost:3000/
+  description: Servidor de desenvolvimento
